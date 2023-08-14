@@ -1,6 +1,6 @@
 from lightchain import Chain, Prompt
 
-ConceptPrompt = Prompt.from_string("")
+ConceptPrompt = Prompt.from_string("Improve the search effectiveness by suggesting expansion terms for the query focusing on the concept {concept}:\n query:{query} \n expansion terms:")
 
 class ConceptExpansion(Chain):
     essential = ['query', 'concept']

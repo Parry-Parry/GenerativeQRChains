@@ -14,7 +14,6 @@ class ConceptExtractor(Object):
     def __call__(self, inp):
         out = inp.drop_duplicates(self.essential).copy()
         out['concept'] = self.parse_concepts(out)
-        # pivot concept 
         out = out.explode('concept')
         return out
         
