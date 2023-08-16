@@ -87,29 +87,7 @@ class CWPRF_Weighting(WeightingModel):
         df = df[~df['id'].isin(self.special_ids)]
         if self.stopwords: df = df[~df['id'].isin(self.stoplist)]
         return df.groupby(['word', 'pos', 'query']).agg({'output_weight' : self.id_mode}).reset_index()
-    '''
-    Currently not using this function
 
-    def deduplicate(self, df): 
-        df_dedup = df.drop_duplicates(subset='id',keep=False)
-        dup_ids = df[df.duplicated(subset='id')]['id'].unique()    
-
-        if self.weight_mode =='max':
-            df=df.reset_index(drop=True)
-            rtr_max = pd.DataFrame(columns=['word', 'pos', 'query', 'output_weight'])
-            for id in dup_ids:
-                rtr_max = rtr_max.append(df.take([df[df.pos==id]['output_weight'].idxmax()]))
-            rtr = df_dedup.append(rtr_max)
-        elif self.weight_mode == "avg":
-            df=df.reset_index(drop=True)
-            mean_weight =[]
-            for id in dup_ids:
-                df_id = df[df.id==id]
-                mean_weight.append(df[df.id==id].tok_weight.mean())
-            rtr_mean = pd.DataFrame({'id':dup_ids,'output_weight':mean_weight})
-            rtr = df_dedup.append(rtr_mean)
-        rtr =  rtr.sort_values(by='tok_weight', ascending=False).reset_index(drop=True)
-    '''
     def weight_terms(self, query, expansion_terms):
         # Expand tokens
         query_pivot = self.pivot(query)
@@ -126,12 +104,13 @@ class CWPRF_Weighting(WeightingModel):
         expansion_tokens = self.filter(expansion_tokens)
 
         potential_candidates = expansion_tokens[expansion_tokens['query'] == False]
-        candidates = potential_candidates.sort_values(by='output_weights', ascending=False)
-        potential_candidates = potential_candidates.drop_duplicates(subset='word').head(self.topk)
+        potential_candidates = potential_candidates.sort_values(by='output_weights', ascending=False)
+        candidates = potential_candidates.drop_duplicates(subset='word').head(self.topk)
+        
         return query + ' ' + ' '.join(candidates.apply(lambda x : self.assign_weights(x['word'], x['outputs_weights']), axis=1))
 
     def logic(self, inp):
         tmp = inp.copy()
-        tmp['expansions'] = tmp.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
+        return tmp.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
         
         
