@@ -13,8 +13,7 @@ class GenerativeConceptQR(pt.Transformer):
         self.concept_extract = concept_extract
         self.weighting_model = weighting_model
 
-
-        self.pipeline = concept_extract >> ConceptExpansion(model, "concept_terms") >> weighting_model
+        self.pipeline = concept_extract >> ConceptExpansion(model, "expansion_terms") >> weighting_model
     
     def transform(self, inputs: DataFrame) -> DataFrame:
         queries = inputs[['qid', 'query']].copy().drop_duplicates()
