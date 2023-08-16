@@ -30,52 +30,6 @@ class WeightingModel(Object):
         out['weighted_terms'] = self.logic(out[self.essential])
         return out
 
-def obtain_tok_w_emb_both(batch_token_ids,batch_embs,batch_weights,variant='AAAT',mode='MAX',stopW=False):
-    
-    assert len(batch_embs)==len(batch_token_ids)==len(batch_weights)
-    rdf=[]
-    if variant == 'OAAT':
-        for tokenlst, embslist,weights in zip(batch_token_ids,batch_embs,batch_weights):
-            rdf_rf = pd.DataFrame({'tid':tokenlst.detach().tolist(),'tok_weight':weights.detach().tolist(), 'tok_emb':embslist.tolist()})
-            rdf.append(rdf_rf)
-        if stopW ==True:
-            df = pd.concat(rdf)
-            df = df[~df['tid'].isin(stop_ids)]
-        else:
-            df = pd.concat(rdf)
-    elif variant == 'AAAT':
-        rdf = pd.DataFrame({'tid':list(batch_token_ids.numpy()),'tok_weight': list(batch_weights.detach().numpy()), 'tok_emb':list(batch_embs.numpy())})
-        if stopW ==True:
-            df = rdf[~rdf['tid'].isin(stop_ids)]
-        else:
-            df = rdf
-            
-    special_ids = [101,102,1,2]
-    df = df[~df['tid'].isin(special_ids)]
-    
-    df_dedup = df.drop_duplicates(subset='tid',keep=False)
-    dup_tids = df[df.duplicated(subset='tid')]['tid'].unique()
-    
-
-    # # max case
-    if mode =='MAX':
-        df=df.reset_index(drop=True)
-        rtr_max = pd.DataFrame(columns=['tid','tok_weight','tok_emb'])
-        for tid in dup_tids:
-            rtr_max = rtr_max.append(df.take([df[df.tid==tid]['tok_weight'].idxmax()]))
-        rtr = df_dedup.append(rtr_max)
-    elif mode == "AVG":
-        df=df.reset_index(drop=True)
-        mean_weight,mean_emb =[],[]
-        for tid in dup_tids:
-            df_tid = df[df.tid==tid]
-            mean_weight.append(df[df.tid==tid].tok_weight.mean())
-            mean_emb.append(torch.mean( torch.stack([torch.Tensor(df_tid.iloc[i].tok_emb) for i in np.arange(len(df_tid))], dim=0), 0))
-        rtr_mean = pd.DataFrame({'tid':dup_tids,'tok_weight':mean_weight, 'tok_emb':mean_emb})
-        rtr = df_dedup.append(rtr_mean)
-    rtr =  rtr.sort_values(by='tok_weight', ascending=False).reset_index(drop=True)
-    return rtr
-
 class CWPRF_Weighting(WeightingModel):
     max_length = 512
     special_ids = [101,102,1,2]
@@ -101,7 +55,7 @@ class CWPRF_Weighting(WeightingModel):
         self.stopwords = stopwords
         self.weight_mode = weight_mode
         self.id_mode = id_mode
-        self.batch_size = batch_size
+        self.batch_size = batch_size # Not currently used
 
         self.stoplist = self.init_stopwords(stopword_path) if stopwords else None
     
