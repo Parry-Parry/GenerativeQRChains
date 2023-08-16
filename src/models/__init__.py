@@ -1,9 +1,9 @@
 from lightchain import Object 
 from ..util import batch_iter, concatenate
 
-class FLANT5(Object):
+class LM(Object):
     def __init__(self, model, tokenizer, generation_kwargs={}, tokenizer_kwargs={}, batch_size=8):
-        super(FLANT5, self).__init__(name="FLANT5")
+        super(LM, self).__init__(name="FLANT5")
         self.model = model
         self.tokenizer = tokenizer
         self.generation_kwargs = generation_kwargs

@@ -86,8 +86,7 @@ class CWPRF_Weighting(WeightingModel):
         df = df[~df['query']] 
         df = df[~df['id'].isin(self.special_ids)]
         if self.stopwords: df = df[~df['id'].isin(self.stoplist)]
-        df = df.drop_duplicates(subset='word')
-        df = df.groupby(['word', 'pos', 'query']).agg({'output_weight' : self.id_mode}).reset_index()
+        return df.groupby(['word', 'pos', 'query']).agg({'output_weight' : self.id_mode}).reset_index()
     '''
     Currently not using this function
 
@@ -127,7 +126,8 @@ class CWPRF_Weighting(WeightingModel):
         expansion_tokens = self.filter(expansion_tokens)
 
         potential_candidates = expansion_tokens[expansion_tokens['query'] == False]
-        candidates = potential_candidates.sort_values(by='output_weights', ascending=False).head(self.topk)
+        candidates = potential_candidates.sort_values(by='output_weights', ascending=False)
+        potential_candidates = potential_candidates.drop_duplicates(subset='word').head(self.topk)
         return query + ' ' + ' '.join(candidates.apply(lambda x : self.assign_weights(x['word'], x['outputs_weights']), axis=1))
 
     def logic(self, inp):
