@@ -3,12 +3,13 @@ from lightchain import Chain, Prompt
 ExtractionPrompt = Prompt.from_string("Query: {query} \n\n Extract comma seperated list of main concepts from the query:")
 class NeuralExtraction(Chain):
     essential = ['query']
-    def __init__(self, model, out_attr : str = 'expansion_terms', i=0):
+    def __init__(self, model, max_concepts : int = 3, out_attr : str = 'expansion_terms', i=0):
         super(NeuralExtraction, self).__init__(model=model, prompt=ExtractionPrompt, name=f"Neural_Extraction{i}")
+        self.max_concepts = max_concepts
         self.out_attr = out_attr
 
     def post_process(self, inp):
-        split = inp.split(',')
+        split = inp.split(',')[:self.max_concepts]
         return [s.strip() for s in split]
 
     def logic(self, inp):
