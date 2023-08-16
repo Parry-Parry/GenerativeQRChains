@@ -10,7 +10,10 @@ import torch
 def main(weight_name_or_path : str, 
          lm_name_or_path : str, 
          test_set : str,
-         out_path : str):
+         out_path : str,
+         stopwords : str = None,
+         beta : float = 0.5,
+         topk : int = 20,):
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     flan_kwargs = {}
@@ -19,7 +22,14 @@ def main(weight_name_or_path : str,
 
     lm = LM(flan, tokenizer, generation_kwargs={'max_length': 512})
     extract = NeuralExtraction(lm)
-    cwprf = CWPRF_Weighting(weight_name_or_path, topk=20, beta=0.5, stopwords=False, weight_mode=None, id_mode='mean', device=device)
+    cwprf = CWPRF_Weighting(weight_name_or_path, 
+                            topk=topk, 
+                            beta=beta, 
+                            stopwords=True if stopwords else False, 
+                            stopword_path = stopwords, 
+                            weight_mode=None, 
+                            id_mode='mean', 
+                            device=device)
     qr = GenerativeConceptQR(lm, extract, cwprf)
 
     test = pt.get_dataset(test_set)
