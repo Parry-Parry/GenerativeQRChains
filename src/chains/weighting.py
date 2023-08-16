@@ -1,7 +1,6 @@
 import pyterrier as pt
 if not pt.started():
     pt.init()
-from pyterrier.model import split_df
 
 from lightchain import Object 
 from abc import abstractmethod
@@ -9,10 +8,8 @@ from transformers import BertTokenizer
 import os
 import subprocess as sp
 import pandas as pd
-import numpy as np
 
 import torch
-from ..util import concatenate
 
 class WeightingModel(Object):
     essential = ['qid', 'query', 'expansion_terms']
