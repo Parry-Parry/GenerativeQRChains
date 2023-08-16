@@ -1,15 +1,19 @@
 from lightchain import Chain, Prompt
 
-ExtractionPrompt = Prompt.from_string("Query: {query} \n\n Extract main concepts from the query:")
-class ConceptExtraction(Chain):
+ExtractionPrompt = Prompt.from_string("Query: {query} \n\n Extract comma seperated list of main concepts from the query:")
+class NeuralExtraction(Chain):
     essential = ['query']
-    def __init__(self, model, out_attr : str, i=0):
-        super(ConceptExtraction, self).__init__(model=model, prompt=ExtractionPrompt, name=f"Concept_Extraction_{i}")
+    def __init__(self, model, out_attr : str = 'expansion_terms', i=0):
+        super(NeuralExtraction, self).__init__(model=model, prompt=ExtractionPrompt, name=f"Neural_Extraction{i}")
         self.out_attr = out_attr
 
+    def post_process(self, inp):
+        split = inp.split(',')
+        return [s.strip() for s in split]
+
     def logic(self, inp):
-        assert 'query' in inp.columns, "ConceptExtraction requires 'query' in input"
+        assert 'query' in inp.columns, "Neural Extraction requires 'query' in input"
         out = inp.copy()
         prompt_args = inp[self.essential].to_dict(orient='records')
         prompts = self.prompt(prompt_args)
-        out[self.out_attr] = self.model(prompts)
+        out[self.out_attr] = list(map(self.post_process, self.model(prompts)))

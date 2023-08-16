@@ -17,11 +17,5 @@ class GenerativeConceptQR(pt.Transformer):
     
     def transform(self, inputs: DataFrame) -> DataFrame:
         queries = inputs[['qid', 'query']].copy().drop_duplicates()
-        expansions = self.pipeline(queries)
-        '''
-            TODO:
-            1. Choose how to merge the expansions with the original queries
-        '''
-
-        queries['new'] = queries['query'] + ' ' + expansions['new_terms']
+        queries['new'] = self.pipeline(queries)
         return queries[['qid', 'query' 'new']].rename(columns = {'query' : 'query_0', 'new' : 'query'})

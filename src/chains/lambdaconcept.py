@@ -16,7 +16,3 @@ class ConceptExtractor(Object):
         out['concept'] = self.parse_concepts(out)
         out = out.explode('concept')
         return out
-        
-        
-
-
