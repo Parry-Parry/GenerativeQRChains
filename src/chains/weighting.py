@@ -86,6 +86,7 @@ class CWPRF_Weighting(WeightingModel):
         df = df[~df['query']] 
         df = df[~df['id'].isin(self.special_ids)]
         if self.stopwords: df = df[~df['id'].isin(self.stoplist)]
+        df = df.drop_duplicates(subset='word')
         df = df.groupby(['word', 'pos', 'query']).agg({'output_weight' : self.id_mode}).reset_index()
     '''
     Currently not using this function
