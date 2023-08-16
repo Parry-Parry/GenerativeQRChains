@@ -107,7 +107,7 @@ class CWPRF_Weighting(WeightingModel):
     
     def init_stopwords(self, path):
         if not os.path.exists(path):
-            sp.run('wget https://raw.githubusercontent.com/terrier-org/terrier-core/5.x/modules/core/src/main/resources/stopword-list.txt -P {path}', shell=True)
+            sp.run('wget https://raw.githubusercontent.com/terrier-org/terrier-core/5.x/modules/core/src/main/resources/stopword-list.txt -O  {path}', shell=True)
         with open(path) as f:
             words = map(lambda x : x.strip(), f.readlines())
         return [x for x in self.tokenizer.convert_tokens_to_ids(words) if x != 100]
