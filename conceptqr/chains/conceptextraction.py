@@ -9,7 +9,9 @@ class NeuralExtraction(Chain):
         self.out_attr = out_attr
 
     def post_process(self, inp):
+        print(inp)
         split = inp.split(',')[:self.max_concepts]
+        print(split)
         return [s.strip() for s in split]
 
     def logic(self, inp):
@@ -17,4 +19,4 @@ class NeuralExtraction(Chain):
         out = inp.copy()
         prompt_args = inp[self.essential].to_dict(orient='records')
         prompts = self.prompt(prompt_args)
-        out[self.out_attr] = list(map(self.post_process, self.model(prompts)))
+        out[self.out_attr] = list(map(lambda x : self.post_process(x[0]), self.model(prompts)))
