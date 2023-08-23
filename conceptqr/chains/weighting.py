@@ -108,7 +108,7 @@ class CWPRF_Weighting(WeightingModel):
             expansion_pivot = expansion_pivot.iloc[:self.max_length - len(query_pivot)]
         # Compute Weights
         expansion_tokens = pd.concat([query_pivot, expansion_pivot])
-        expansion_tokens['output_weight'] = self.compute_weights(expansion_tokens)
+        expansion_tokens['output_weights'] = self.compute_weights(expansion_tokens)
         # Filter and Aggregate
         expansion_tokens = self.filter(expansion_tokens)
 
