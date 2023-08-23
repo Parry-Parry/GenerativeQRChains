@@ -6,5 +6,5 @@ setuptools.setup(
     author="Andrew Parry",
     author_email="a.parry.1@research.gla.ac.uk",
     description="Implementation of generative QR with LLM concept expansion",
-    packages=setuptools.find_packages('src'),
+    packages=setuptools.find_packages(exclude=['tests', 'eval']),
 )
