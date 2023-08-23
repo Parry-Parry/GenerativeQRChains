@@ -26,7 +26,11 @@ def main(lm_name_or_path : str,
         flan = flan.to(device)
     tokenizer = T5Tokenizer.from_pretrained(lm_name_or_path)
 
-    lm = LM(flan, tokenizer, generation_kwargs=creative, batch_size=batch_size)
+    tok_kwargs = {
+        'padding' : 'max_length', 'truncation' : True,
+    }
+
+    lm = LM(flan, tokenizer, generation_kwargs=creative, tokenizer_kwargs=tok_kwargs, batch_size=batch_size)
     extract = NeuralExtraction(lm)
     qr = ConceptExpansion(lm, "expansion_terms")
 
