@@ -6,4 +6,4 @@ def batch_iter(iterable, n=1):
         yield iterable[ndx:min(ndx + n, l)]
 
 def concatenate(*lists):
-    return itertools.chain.from_iterable(lists)
+    return list(itertools.chain.from_iterable(lists))
