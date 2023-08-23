@@ -99,6 +99,7 @@ class CWPRF_Weighting(WeightingModel):
     def weight_terms(self, query, expansion_terms):
         # Expand tokens
         query_pivot = self.pivot(query)
+        print("Pivoted")
         query_pivot['query'] = True
         expansion_pivot = self.pivot(expansion_terms)
         expansion_pivot['query'] = False
