@@ -19,4 +19,6 @@ class NeuralExtraction(Chain):
         out = inp.copy()
         prompt_args = inp[self.essential].to_dict(orient='records')
         prompts = self.prompt(prompt_args)
-        out[self.out_attr] = list(map(lambda x : self.post_process(x[0]), self.model(prompts)))
+        output = self.model(prompts)
+        print(output)
+        out[self.out_attr] = list(map(lambda x : self.post_process(x), self.model(prompts)))
