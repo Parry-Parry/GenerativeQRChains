@@ -11,7 +11,6 @@ class NeuralExtraction(Chain):
     def post_process(self, inp):
         print(inp)
         split = inp.split(',')[:self.max_concepts]
-        print(split)
         return [s.strip() for s in split]
 
     def logic(self, inp):
@@ -21,4 +20,4 @@ class NeuralExtraction(Chain):
         prompts = self.prompt(prompt_args)
         output = self.model(prompts)
         print(output)
-        out[self.out_attr] = list(map(lambda x : self.post_process(x), self.model(prompts)))
+        out[self.out_attr] = list(map(lambda x : self.post_process(x), output))
