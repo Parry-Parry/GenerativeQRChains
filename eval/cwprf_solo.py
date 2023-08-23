@@ -10,8 +10,7 @@ import pandas as pd
 def concatenate_concepts(inp):
     # group by qid and concatenate expansion_terms over concept columns
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
-    print(inp)
-    return inp.groupby(['qid', 'query'])['expansion_terms'].apply(list).reset_index()
+    return inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
 
 def main(weight_name_or_path : str, 
          intermediate : str,
