@@ -7,6 +7,7 @@ from conceptqr.chains.weighting import CWPRF_Weighting
 import torch
 import pandas as pd
 from typing import List
+import ast
 def concatenate_concepts(inp):
     # group by qid and concatenate expansion_terms over concept columns
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
@@ -35,7 +36,7 @@ def main(weight_name_or_path : str,
     
     pipe = ConceptConcatenation >> cwprf
 
-    topics = pd.read_csv(intermediate, sep='\t', index_col=False, dtype={'qid' : str, 'query' : str, 'concept' : str, 'expansion_terms' : List[str]})
+    topics = pd.read_csv(intermediate, sep='\t', index_col=False, converters={'expansion_terms': ast.literal_eval})
 
     print(ConceptConcatenation(topics).iloc[0]['expansion_terms'])
     
