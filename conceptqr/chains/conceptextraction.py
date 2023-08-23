@@ -9,6 +9,7 @@ class NeuralExtraction(Chain):
         self.out_attr = out_attr
 
     def post_process(self, inp):
+        print(inp)
         split = inp.split(',')[:self.max_concepts]
         print(split, len(split))
         return [s.strip() for s in split]
