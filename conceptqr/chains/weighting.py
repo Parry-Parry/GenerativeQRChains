@@ -2,6 +2,8 @@ import pyterrier as pt
 if not pt.started():
     pt.init()
 
+from pyterrier.model import push_queries
+
 from lightchain import Object 
 from abc import abstractmethod
 from transformers import BertTokenizer
@@ -110,7 +112,10 @@ class CWPRF_Weighting(WeightingModel):
         return query + ' ' + ' '.join(candidates.apply(lambda x : self.assign_weights(x['word'], x['outputs_weights']), axis=1))
 
     def logic(self, inp):
-        tmp = inp.copy()
-        return tmp.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
+        out = inp.copy()
+        expansion = out.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
+        out = push_queries(out, keep_original=True)
+        out['query'] = expansion
+        return out
         
         
