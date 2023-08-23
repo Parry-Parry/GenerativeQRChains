@@ -9,6 +9,7 @@ class ConceptExpansion(Chain):
         self.out_attr = out_attr
 
     def logic(self, inp):
+        print(inp)
         assert 'query' in inp and 'concept' in inp.columns, "ConceptExpansion requires 'query' and 'concept' in input"
         out = inp.copy()
         prompt_args = inp[self.essential].to_dict(orient='records')
