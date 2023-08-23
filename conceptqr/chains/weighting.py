@@ -26,7 +26,8 @@ class WeightingModel(Object):
         for col in self.essential:
             assert col in inp.columns, f"WeightingModel requires '{col}' in input"
         out = inp.copy()
-        out['weighted_terms'] = self.logic(out[self.essential])
+        out = push_queries(out, keep_original=True)
+        out['query'] = self.logic(out[self.essential])
         return out
 
 class CWPRF_Weighting(WeightingModel):
@@ -120,9 +121,6 @@ class CWPRF_Weighting(WeightingModel):
 
     def logic(self, inp):
         out = inp.copy()
-        expansion = out.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
-        out = push_queries(out, keep_original=True)
-        out['query'] = expansion
-        return out
+        return out.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
         
         
