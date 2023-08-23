@@ -63,8 +63,7 @@ class CWPRF_Weighting(WeightingModel):
     
     def init_stopwords(self, path):
         if not os.path.isfile(path):
-            stopwords = urllib.URLopener()
-            stopwords.retrieve("https://raw.githubusercontent.com/terrier-org/terrier-core/5.x/modules/core/src/main/resources/stopword-list.txt", path)
+            urllib.request.urlretrieve("https://raw.githubusercontent.com/terrier-org/terrier-core/5.x/modules/core/src/main/resources/stopword-list.txt", path)
             sp.run('wget  -O  {path}', shell=True)
         with open(path) as f:
             words = list(map(lambda x : x.strip(), f.readlines()))
