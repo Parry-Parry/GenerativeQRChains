@@ -35,7 +35,7 @@ def main(weight_name_or_path : str,
     
     pipe = ConceptConcatenation >> cwprf
 
-    topics = pd.read_csv(intermediate, sep='\t', index_col=False)
+    topics = pd.read_csv(intermediate, sep='\t', index_col=False, dtype={'qid' : str, 'query' : str, 'concept' : str, 'expansion_terms' : list})
 
     print(ConceptConcatenation(topics).iloc[0]['expansion_terms'])
     
