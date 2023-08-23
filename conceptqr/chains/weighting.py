@@ -10,7 +10,7 @@ from transformers import BertTokenizer
 import os
 import subprocess as sp
 import pandas as pd
-
+import urllib
 import torch
 
 class WeightingModel(Object):
@@ -62,8 +62,10 @@ class CWPRF_Weighting(WeightingModel):
         self.stoplist = self.init_stopwords(stopword_path) if stopwords else None
     
     def init_stopwords(self, path):
-        if not os.path.exists(path):
-            sp.run('wget https://raw.githubusercontent.com/terrier-org/terrier-core/5.x/modules/core/src/main/resources/stopword-list.txt -O  {path}', shell=True)
+        if not os.path.isfile(path):
+            stopwords = urllib.URLopener()
+            stopwords.retrieve("https://raw.githubusercontent.com/terrier-org/terrier-core/5.x/modules/core/src/main/resources/stopword-list.txt", path)
+            sp.run('wget  -O  {path}', shell=True)
         with open(path) as f:
             words = list(map(lambda x : x.strip(), f.readlines()))
         return [x for x in self.tokenizer.convert_tokens_to_ids(words) if x != 100]
