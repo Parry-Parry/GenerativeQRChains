@@ -71,6 +71,7 @@ class CWPRF_Weighting(WeightingModel):
     
     def pivot(self, text):
         frame = []
+        print(text)
         for i, token in enumerate(text.split(' ')):
             tokenised = self.tokenizer(token, return_tensors='pt')
             for j in range(tokenised.input_ids.shape[1]):
@@ -83,7 +84,6 @@ class CWPRF_Weighting(WeightingModel):
     
     def compute_weights (self, expansion):
         idx = expansion['id'].tolist()
-        print(idx)
         expansion_ids = torch.tensor(idx)
         expansion_ids = expansion_ids.unsqueeze(0).to(self.device)
         with torch.no_grad():
@@ -98,7 +98,6 @@ class CWPRF_Weighting(WeightingModel):
 
     def weight_terms(self, query, expansion_terms):
         # Expand tokens
-        print("Entered weight_terms")
         query_pivot = self.pivot(query)
 
         query_pivot['query'] = True
