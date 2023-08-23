@@ -37,7 +37,7 @@ def main(weight_name_or_path : str,
 
     topics = pd.read_csv(intermediate, sep='\t', index_col=False)
 
-    print(ConceptConcatenation(topics))
+    print(ConceptConcatenation(topics).iloc[0]['expansion_terms'])
     
 
     new_queries = pipe(topics)
