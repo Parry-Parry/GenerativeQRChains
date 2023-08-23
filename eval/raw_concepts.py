@@ -3,8 +3,11 @@ if not pt.started():
     pt.init()
 
 from fire import Fire
-from conceptqr import LM, NeuralExtraction, ConceptExpansion
+from conceptqr.chains.conceptextraction import NeuralExtraction
+from conceptqr.chains.conceptexpansion import ConceptExpansion
+from conceptqr.models import LM
 from conceptqr.models.generation import creative
+
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
 
