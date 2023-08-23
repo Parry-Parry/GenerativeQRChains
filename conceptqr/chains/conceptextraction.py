@@ -1,6 +1,6 @@
 from lightchain import Chain, Prompt
 
-ExtractionPrompt = Prompt.from_string("Query: {query} \n\n Extract comma seperated list of main concepts from the query:")
+ExtractionPrompt = Prompt.from_string("Query: {query} \n\n Extract list of main concepts from the query:")
 class NeuralExtraction(Chain):
     essential = ['query']
     def __init__(self, model, max_concepts : int = 3, out_attr : str = 'expansion_terms', i=0):
