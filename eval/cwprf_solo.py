@@ -14,7 +14,7 @@ def concatenate_concepts(inp):
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
     inp = inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
     inp['expansion_terms'] = inp['expansion_terms'].apply(concatenate)
-
+    return inp
 def main(weight_name_or_path : str, 
          intermediate : str,
          out_path : str,
