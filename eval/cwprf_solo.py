@@ -31,10 +31,14 @@ def main(weight_name_or_path : str,
                             device=device)
     
     ConceptConcatenation = LambdaChain(concatenate_concepts)
+
     
     pipe = ConceptConcatenation >> cwprf
 
     topics = pd.read_csv(intermediate, sep='\t', index_col=False)
+
+    print(ConceptConcatenation(topics))
+    
 
     new_queries = pipe(topics)
     new_queries[['qid', 'query']].to_csv(out_path, sep='\t', index=False)
