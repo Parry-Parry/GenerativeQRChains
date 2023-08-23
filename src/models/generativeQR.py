@@ -4,7 +4,7 @@ if not pt.started():
     pt.init()
 from lightchain import LambdaChain 
 
-from ..chains.conceptexpansion import ConceptExpansion
+from conceptqr.chains.conceptexpansion import ConceptExpansion
 from pandas import DataFrame
 
 def concatenate_concepts(inp):
