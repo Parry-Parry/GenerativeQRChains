@@ -119,6 +119,7 @@ class CWPRF_Weighting(WeightingModel):
 
     def logic(self, inp):
         out = inp.copy()
+        print(out)
         expansion = out.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
         out = push_queries(out, keep_original=True)
         out['query'] = expansion
