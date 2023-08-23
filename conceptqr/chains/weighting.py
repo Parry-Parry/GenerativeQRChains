@@ -94,7 +94,7 @@ class CWPRF_Weighting(WeightingModel):
         df = df[~df['query']] 
         df = df[~df['id'].isin(self.special_ids)]
         if self.stopwords: df = df[~df['id'].isin(self.stoplist)]
-        return df.groupby(['word', 'pos', 'query']).agg({'output_weight' : self.id_mode}).reset_index()
+        return df.groupby(['word', 'pos', 'query']).agg({'output_weights' : self.id_mode}).reset_index()
 
     def weight_terms(self, query, expansion_terms):
         # Expand tokens
