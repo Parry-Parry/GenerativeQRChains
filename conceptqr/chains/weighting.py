@@ -44,9 +44,9 @@ class CWPRF_Weighting(WeightingModel):
                  device = None,
                  ):
         super().__init__()
-        from ..models.cwprf import CWPRF    
+        from conceptqr.models.cwprf import CWPRFEncoder
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') if device is None else device
-        self.model = CWPRF.from_pretrained(model_name_or_path)
+        self.model = CWPRFEncoder.from_pretrained(model_name_or_path)
         self.tokenizer = BertTokenizer.from_pretrained(model_name_or_path)
         
         self.topk = topk

@@ -34,10 +34,10 @@ def main(weight_name_or_path : str,
     
     pipe = ConceptConcatenation >> cwprf
 
-    topics = pd.read_csv(intermediate, sep='\t')
+    topics = pd.read_csv(intermediate, sep='\t', index_col=False)
 
     new_queries = pipe(topics)
-    new_queries.to_csv(out_path, sep='\t', index=False)
+    new_queries[['qid', 'query']].to_csv(out_path, sep='\t', index=False)
 
 if __name__ == "__main__":
     Fire(main)
