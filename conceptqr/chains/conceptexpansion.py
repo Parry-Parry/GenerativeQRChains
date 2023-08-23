@@ -15,3 +15,4 @@ class ConceptExpansion(Chain):
         prompt_args = inp[self.essential].to_dict(orient='records')
         prompts = self.prompt(prompt_args)
         out[self.out_attr] = self.model(prompts)
+        return out

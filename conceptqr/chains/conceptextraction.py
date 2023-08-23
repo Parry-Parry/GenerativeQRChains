@@ -3,15 +3,14 @@ from lightchain import Chain, Prompt
 ExtractionPrompt = Prompt.from_string("Query: {query} \n\n Extract list of main concepts from the query:")
 class NeuralExtraction(Chain):
     essential = ['query']
-    def __init__(self, model, max_concepts : int = 3, out_attr : str = 'concept', i=0):
+    def __init__(self, model, max_concepts : int = 3, out_attr : str = 'concept', split_token=' ', i=0):
         super(NeuralExtraction, self).__init__(model=model, prompt=ExtractionPrompt, name=f"Neural_Extraction{i}")
         self.max_concepts = max_concepts
         self.out_attr = out_attr
+        self.split_token = split_token
 
     def post_process(self, inp):
-        print(inp.split(','))
-        split = inp.split(',')[:self.max_concepts]
-        print(split, len(split))
+        split = inp.split(self.split_token)[:self.max_concepts]
         return [s.strip() for s in split]
 
     def logic(self, inp):
@@ -21,4 +20,5 @@ class NeuralExtraction(Chain):
         prompts = self.prompt(prompt_args)
         output = self.model(prompts)
         out[self.out_attr] = list(map(lambda x : self.post_process(x), output))
+        out = out.explode(self.out_attr)
         return out
