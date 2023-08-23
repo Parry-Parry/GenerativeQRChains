@@ -1,2 +1,2 @@
-import chains
-import models
+import conceptqr.chains
+import conceptqr.models
