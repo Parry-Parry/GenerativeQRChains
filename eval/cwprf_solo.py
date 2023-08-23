@@ -4,6 +4,7 @@ if not pt.started():
 from lightchain import LambdaChain
 from fire import Fire
 from conceptqr.chains.weighting import CWPRF_Weighting
+from conceptqr.util import concatenate
 import torch
 import pandas as pd
 from typing import List
@@ -11,7 +12,8 @@ import ast
 def concatenate_concepts(inp):
     # group by qid and concatenate expansion_terms over concept columns
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
-    return inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
+    inp = inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
+    inp['expansion_terms'] = inp['expansion_terms'].apply(concatenate)
 
 def main(weight_name_or_path : str, 
          intermediate : str,
