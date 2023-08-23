@@ -1,6 +1,6 @@
 from lightchain import Object 
 import torch
-from ..util import batch_iter, concatenate
+from conceptqr.util import batch_iter, concatenate
 from tqdm import tqdm 
 
 class LM(Object):
@@ -13,6 +13,7 @@ class LM(Object):
         self.batch_size = batch_size
 
     def generate(self, inp):
+        print(inp)
         prompt = self.tokenizer(inp, return_tensors="pt", **self.tokenizer_kwargs).to(self.model.device)
         with torch.no_grad():
             generated = self.model.generate(**prompt, **self.generation_kwargs)
