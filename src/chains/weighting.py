@@ -72,6 +72,7 @@ class CWPRF_Weighting(WeightingModel):
     def pivot(self, text):
         frame = []
         for i, token in enumerate(text.split(' ')):
+            print('token', token)
             tokenised = self.tokenizer(token, return_tensors='pt')
             for j in range(tokenised.input_ids.shape[1]):
                 frame.append({'word' : token, 'pos' : i, 'id' : tokenised.input_ids[0, j].item()})
@@ -99,7 +100,7 @@ class CWPRF_Weighting(WeightingModel):
     def weight_terms(self, query, expansion_terms):
         # Expand tokens
         query_pivot = self.pivot(query)
-        print("Pivoted")
+
         query_pivot['query'] = True
         expansion_pivot = self.pivot(expansion_terms)
         expansion_pivot['query'] = False
