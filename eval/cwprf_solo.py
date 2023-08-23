@@ -12,8 +12,6 @@ def concatenate_concepts(inp):
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
     return inp.groupby(['qid', 'query'])['expansion_terms'].apply(list).reset_index()
 
-ConceptConcatenation = LambdaChain(concatenate_concepts, name="Concept_Concatenation")
-
 def main(weight_name_or_path : str, 
          intermediate : str,
          out_path : str,

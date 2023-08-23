@@ -4,13 +4,15 @@ if not pt.started():
 
 from fire import Fire
 from conceptqr import LM, NeuralExtraction, ConceptExpansion
+from conceptqr.models.generation import creative
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
 
 def main(lm_name_or_path : str, 
          test_set : str,
          out_path : str,
-         device_map=None):
+         device_map=None,
+         batch_size : int = 8):
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     flan_kwargs = {}
@@ -21,7 +23,7 @@ def main(lm_name_or_path : str,
         flan = flan.to(device)
     tokenizer = T5Tokenizer.from_pretrained(lm_name_or_path)
 
-    lm = LM(flan, tokenizer, generation_kwargs={'max_length': 512})
+    lm = LM(flan, tokenizer, generation_kwargs=creative, batch_size=batch_size)
     extract = NeuralExtraction(lm)
     qr = ConceptExpansion(lm, "expansion_terms")
 

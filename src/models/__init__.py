@@ -1,6 +1,7 @@
 from lightchain import Object 
 import torch
 from ..util import batch_iter, concatenate
+from tqdm import tqdm 
 
 class LM(Object):
     def __init__(self, model, tokenizer, generation_kwargs={}, tokenizer_kwargs={}, batch_size=8):
@@ -19,7 +20,7 @@ class LM(Object):
     
     def __call__(self, inp):
         if len(inp) > self.batch_size:
-            return concatenate([self.generate(prompt) for prompt in batch_iter(inp, self.batch_size)])
+            return concatenate([self.generate(prompt) for prompt in tqdm(batch_iter(inp, self.batch_size), desc="Generating...")])
         else:
             return self.generate(inp)
                 
