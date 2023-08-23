@@ -116,7 +116,7 @@ class CWPRF_Weighting(WeightingModel):
         potential_candidates = potential_candidates.sort_values(by='output_weights', ascending=False)
         candidates = potential_candidates.drop_duplicates(subset='word').head(self.topk)
         
-        return query + ' ' + ' '.join(candidates.apply(lambda x : self.assign_weights(x['word'], x['outputs_weights']), axis=1))
+        return query + ' ' + ' '.join(candidates.apply(lambda x : self.assign_weights(x['word'], x['output_weights']), axis=1))
 
     def logic(self, inp):
         out = inp.copy()
