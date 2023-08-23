@@ -82,7 +82,7 @@ class CWPRF_Weighting(WeightingModel):
         return f'{token}^{adjusted_weight:.4f}'
     
     def compute_weights (self, expansion):
-        expansion_ids = torch.cat(map(torch.tensor, expansion['id'].tolist())).unsqueeze(0)
+        expansion_ids = torch.tensor(expansion['id'].tolist()).unsqueeze(0)
         expansion_ids = expansion_ids.to(self.device)
         with torch.no_grad():
             outputs = self.model(input_ids=expansion_ids, attention_mask=torch.ones_like(expansion_ids)).cpu()
