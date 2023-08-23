@@ -40,9 +40,6 @@ def main(weight_name_or_path : str,
 
     topics = pd.read_csv(intermediate, sep='\t', index_col=False, converters={'expansion_terms': ast.literal_eval})
 
-    print(ConceptConcatenation(topics).iloc[0]['expansion_terms'])
-    
-
     new_queries = pipe(topics)
     new_queries[['qid', 'query']].to_csv(out_path, sep='\t', index=False)
 
