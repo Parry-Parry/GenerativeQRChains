@@ -41,7 +41,7 @@ def main(weight_name_or_path : str,
     topics = pd.read_csv(intermediate, sep='\t', index_col=False, converters={'expansion_terms': ast.literal_eval})
 
     new_queries = pipe(topics)
-    new_queries[['qid', 'query']].to_csv(out_path, sep='\t', index=False)
+    new_queries.to_csv(out_path, sep='\t', index=False)
 
 if __name__ == "__main__":
     Fire(main)

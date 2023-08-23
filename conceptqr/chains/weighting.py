@@ -72,7 +72,6 @@ class CWPRF_Weighting(WeightingModel):
     
     def pivot(self, text):
         frame = []
-        print(text)
         for i, token in enumerate(text.split(' ')):
             tokenised = self.tokenizer(token, return_tensors='pt')
             for j in range(tokenised.input_ids.shape[1]):
