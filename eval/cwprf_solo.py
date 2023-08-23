@@ -3,7 +3,7 @@ if not pt.started():
     pt.init()
 from lightchain import LambdaChain
 from fire import Fire
-from conceptqr import CWPRF_Weighting
+from conceptqr.chains.weighting import CWPRF_Weighting
 import torch
 import pandas as pd
 
