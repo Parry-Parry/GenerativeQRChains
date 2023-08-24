@@ -4,8 +4,8 @@ from conceptqr.util import batch_iter, concatenate
 from tqdm import tqdm 
 
 class LM(Object):
+    name = 'Language Model'
     def __init__(self, model, tokenizer, generation_kwargs={}, tokenizer_kwargs={}, batch_size=8):
-        super(LM, self).__init__(name="FLANT5")
         self.model = model
         self.tokenizer = tokenizer
         self.generation_kwargs = generation_kwargs
