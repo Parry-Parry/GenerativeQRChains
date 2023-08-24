@@ -23,7 +23,7 @@ def main(
     for beta in BETA:
         for topk in TOPK:
             for max_concepts in MAX_CONCEPTS:
-                args = main_args.copy()
+                args = main_args
                 out_path = os.path.join(out_dir, f'dl19_{beta}_{topk}_{max_concepts}.tsv')
                 args += f' --beta {beta} --topk {topk} --max_concepts {max_concepts} --out_path {out_path}'
                 sp.run(args, shell=True)
