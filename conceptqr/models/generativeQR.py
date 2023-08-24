@@ -18,7 +18,6 @@ ConceptConcatenation = LambdaChain(concatenate_concepts)
 
 class GenerativeConceptQR(pt.Transformer):
     def __init__(self, model, concept_extract, weighting_model) -> None:
-        super().__init__()
         self.pipeline = concept_extract >> ConceptExpansion(model, "expansion_terms") >> ConceptConcatenation >> weighting_model
     
     def transform(self, inputs: DataFrame) -> DataFrame:

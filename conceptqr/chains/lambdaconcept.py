@@ -4,7 +4,6 @@ from abc import abstractmethod
 class ConceptExtractor(Object):
     essential = ['qid', 'query']
     def __init__(self, model):
-        super(ConceptExtractor, self).__init__(name="Concept_Extractor")
         self.model = model
 
     @abstractmethod

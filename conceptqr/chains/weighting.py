@@ -15,8 +15,9 @@ import torch
 
 class WeightingModel(Object):
     essential = ['qid', 'query', 'expansion_terms']
+    name = 'WeightingModel'
     def __init__(self):
-        super(WeightingModel, self).__init__(name="Weighting_Model")
+        pass
 
     @abstractmethod
     def logic(self, inp):
