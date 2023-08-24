@@ -3,10 +3,17 @@ if not pt.started():
     pt.init()
 
 from fire import Fire
-from conceptqr import LM, GenerativeConceptQR, CWPRF_Weighting, NeuralExtraction
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
+
+from fire import Fire
+from conceptqr.chains.conceptextraction import NeuralExtraction
+from conceptqr.chains.weighting import CWPRF_Weighting
+from conceptqr.models import LM
 from conceptqr.models.generation import contrastive
+from conceptqr.models.generativeQR import GenerativeConceptQR
+
+from transformers import T5ForConditionalGeneration, T5Tokenizer
 
 def main(weight_name_or_path : str, 
          lm_name_or_path : str, 
