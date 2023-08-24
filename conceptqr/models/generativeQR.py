@@ -24,4 +24,4 @@ class GenerativeConceptQR(pt.Transformer):
     def transform(self, inputs: DataFrame) -> DataFrame:
         queries = inputs[['qid', 'query']].copy().drop_duplicates()
         queries = self.pipeline(queries)
-        return queries[['qid', 'query' 'query_0']]
+        return queries[['qid', 'query', 'query_0']]
