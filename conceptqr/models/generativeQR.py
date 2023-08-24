@@ -5,14 +5,16 @@ if not pt.started():
 from lightchain import LambdaChain 
 
 from conceptqr.chains.conceptexpansion import ConceptExpansion
+from conceptqr.util import concatenate
 from pandas import DataFrame
 
 def concatenate_concepts(inp):
     # group by qid and concatenate expansion_terms over concept columns
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
-    return inp.groupby(['qid', 'query'])['expansion_terms'].apply(list).reset_index()
+    inp = inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
+    inp['expansion_terms'] = inp['expansion_terms'].apply(lambda x : ' '.join(concatenate(x)))
 
-ConceptConcatenation = LambdaChain(concatenate_concepts, name="Concept_Concatenation")
+ConceptConcatenation = LambdaChain(concatenate_concepts)
 
 class GenerativeConceptQR(pt.Transformer):
     def __init__(self, model, concept_extract, weighting_model) -> None:
