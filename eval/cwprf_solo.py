@@ -34,7 +34,6 @@ def main(weight_name_or_path : str,
                             device=device)
     
     ConceptConcatenation = LambdaChain(concatenate_concepts)
-
     
     pipe = ConceptConcatenation >> cwprf
 

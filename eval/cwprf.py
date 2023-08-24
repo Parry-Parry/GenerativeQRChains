@@ -6,22 +6,29 @@ from fire import Fire
 from conceptqr import LM, GenerativeConceptQR, CWPRF_Weighting, NeuralExtraction
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
+from conceptqr.models.generation import contrastive
 
 def main(weight_name_or_path : str, 
          lm_name_or_path : str, 
          test_set : str,
          out_path : str,
          stopwords : str = None,
+         max_concepts : int = 3,
          beta : float = 0.5,
-         topk : int = 20,):
+         topk : int = 20,
+         batch_size : int = 8):
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     flan_kwargs = {}
     flan = T5ForConditionalGeneration.from_pretrained(lm_name_or_path, **flan_kwargs)
     tokenizer = T5Tokenizer.from_pretrained(lm_name_or_path)
 
-    lm = LM(flan, tokenizer, generation_kwargs={'max_length': 512})
-    extract = NeuralExtraction(lm)
+    tok_kwargs = {
+        'padding' : 'max_length', 'truncation' : True,
+    }
+
+    lm = LM(flan, tokenizer, generation_kwargs=contrastive, tokenizer_kwargs=tok_kwargs, batch_size=batch_size)
+    extract = NeuralExtraction(lm, max_concepts=max_concepts)
     cwprf = CWPRF_Weighting(weight_name_or_path, 
                             topk=topk, 
                             beta=beta, 

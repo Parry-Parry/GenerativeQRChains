@@ -28,6 +28,7 @@ class WeightingModel(Object):
         out = inp.copy()
         out = push_queries(out, keep_original=True)
         out['query'] = self.logic(out[self.essential])
+        out = out.drop('expansion_terms', axis=1)
         return out
 
 class CWPRF_Weighting(WeightingModel):
@@ -91,9 +92,11 @@ class CWPRF_Weighting(WeightingModel):
         return outputs.squeeze(dim=2).squeeze(dim=0).numpy().tolist()
     
     def filter(self, df):
-        df = df[~df['query']] 
+        query_tokens = df[df['query']]['word'].unique().tolist()
+        df = df[~df['word'].isin(query_tokens)]
         df = df[~df['id'].isin(self.special_ids)]
         if self.stopwords: df = df[~df['id'].isin(self.stoplist)]
+        df = df[~df['query']] 
         return df.groupby(['word', 'pos', 'query']).agg({'output_weights' : self.id_mode}).reset_index()
 
     def weight_terms(self, query, expansion_terms):
