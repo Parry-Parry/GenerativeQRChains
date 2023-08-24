@@ -24,6 +24,7 @@ class WeightingModel(Object):
         raise NotImplementedError
     
     def __call__(self, inp):
+        print(inp)
         for col in self.essential:
             assert col in inp.columns, f"WeightingModel requires '{col}' in input"
         out = inp.copy()
