@@ -9,11 +9,11 @@ from conceptqr.util import concatenate
 from pandas import DataFrame
 
 def concatenate_concepts(inp):
-    print(inp, 'concat')
     # group by qid and concatenate expansion_terms over concept columns
     inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
     inp = inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
     inp['expansion_terms'] = inp['expansion_terms'].apply(lambda x : ' '.join(concatenate(x)))
+    return inp
 
 ConceptConcatenation = LambdaChain(concatenate_concepts)
 
