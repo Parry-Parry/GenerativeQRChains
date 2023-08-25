@@ -15,7 +15,7 @@ def main(topic_dir : str, out_dir : str):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir, exist_ok=True)
 
-    bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25")
+    bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25") % 1000
     
     runs = []
 
