@@ -6,6 +6,7 @@ from fire import Fire
 import os 
 import pandas as pd
 import ir_measures
+import ir_datasets as irds
 from ir_measures import *
 
 def main(topic_dir : str, out_dir : str):
@@ -25,7 +26,7 @@ def main(topic_dir : str, out_dir : str):
 
         rez.to_csv(os.path.join(out_dir, f'{name}_ranking.tsv'), sep='\t', index=False)
 
-        qrels = pt.get_dataset("msmarco_passage").get_qrels(variant='test-2019')
+        qrels = pd.DataFrame(irds.load("msmarco-passage/trec-dl-2019/judged").qrels_iter())
 
         evaluator = ir_measures.evaluator([nDCG(rel=2)@10, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
 
