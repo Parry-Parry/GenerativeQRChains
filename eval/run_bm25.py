@@ -14,7 +14,7 @@ def main(topic_dir : str, out_dir : str):
     if not os.path.exists(out_dir):
         os.makedirs(out_dir, exist_ok=True)
 
-    bm25 = pt.BatchRetrieve.from_dataset(pt.get_dataset("msmarco_passage"), "terrier_stemmed", wmodel="BM25")
+    bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25")
     
     runs = []
 
@@ -36,3 +36,5 @@ def main(topic_dir : str, out_dir : str):
     runs = pd.DataFrame.from_records(runs)
     runs.to_csv(os.path.join(out_dir, 'metrics.tsv'), sep='\t', index=False)
 
+if __name__ == "__main__":
+    Fire(main)
