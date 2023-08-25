@@ -20,7 +20,7 @@ def main(topic_dir : str, out_dir : str):
     runs = []
 
     qrels = irds.load("msmarco-passage/trec-dl-2019/judged").qrels_iter()
-    evaluator = ir_measures.evaluator([nDCG(rel=2)@10, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
+    evaluator = ir_measures.evaluator([nDCG@10, R(rel=2)@100, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
 
     for f in files:
         name = os.path.basename(f).strip('.tsv')
