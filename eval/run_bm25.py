@@ -19,6 +19,9 @@ def main(topic_dir : str, out_dir : str):
     
     runs = []
 
+    qrels = irds.load("msmarco-passage/trec-dl-2019/judged").qrels_iter()
+    evaluator = ir_measures.evaluator([nDCG(rel=2)@10, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
+
     for f in files:
         name = os.path.basename(f).strip('.tsv')
         topics = pd.read_csv(os.path.join(topic_dir, f), sep='\t', index_col=False)
@@ -26,9 +29,7 @@ def main(topic_dir : str, out_dir : str):
 
         rez.to_csv(os.path.join(out_dir, f'{name}_ranking.tsv'), sep='\t', index=False)
 
-        qrels = pd.DataFrame(irds.load("msmarco-passage/trec-dl-2019/judged").qrels_iter())
-
-        evaluator = ir_measures.evaluator([nDCG(rel=2)@10, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
+        
 
         metrics = evaluator.calc_aggregate(rez)
         metrics['name'] = name
