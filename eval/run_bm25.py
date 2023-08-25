@@ -25,7 +25,7 @@ def main(topic_dir : str, out_dir : str):
     for f in files:
         name = os.path.basename(f).strip('.tsv')
         topics = pd.read_csv(os.path.join(topic_dir, f), sep='\t', index_col=False)
-        rez = bm25.transform(topics)
+        rez = bm25.transform(topics).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
 
         rez.to_csv(os.path.join(out_dir, f'{name}_ranking.tsv'), sep='\t', index=False)
 
