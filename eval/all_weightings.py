@@ -8,8 +8,8 @@ def main(
         out_dir : str,):
     
     BETA = [0.25, 0.5, 0.75, 1.0]
-    TOPK = [1, 3, 5, 10, 20]
-    PRUNE_K = [0, 5, 10, 15, 20]
+    TOPK = [1, 3, 5, 10]
+    PRUNE_K = [0, 10, 15, 20]
 
     weights = ['fixed', 'tfidf']
     
@@ -27,7 +27,7 @@ def main(
                 for beta in BETA:
                     for topk in TOPK:
                         args = main_args
-                        out_path = os.path.join(out_dir, f'{name}_{beta}_{topk}_{weight}.tsv')
+                        out_path = os.path.join(out_dir, f'{name}_{beta}_{topk}_{prune_k}_{weight}.tsv')
                         args += f'--intermediate {file} --beta {beta} --topk {topk} --out_path {out_path}'
                         if prune_k > 0: args += f' --prune_k {prune_k}'
                         sp.run(args, shell=True)

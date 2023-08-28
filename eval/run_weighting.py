@@ -8,6 +8,11 @@ import torch
 import pandas as pd
 import ast
 from types import SimpleNamespace 
+import ir_measures
+from ir_measures import *
+import ir_datasets as irds
+import json
+import os
 
 def init_weighting(hparams : SimpleNamespace):
     if hparams.weighting == 'cwprf':
@@ -60,6 +65,23 @@ def main(intermediate : str,
 
     new_queries = pipe(topics)
     new_queries.to_csv(out_path, sep='\t', index=False)
+
+    qrels = irds.load("msmarco-passage/trec-dl-2019/judged").qrels_iter()
+    evaluator = ir_measures.evaluator([nDCG@10, R(rel=2)@100, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
+
+    name = os.path.basename(out_path).strip('.tsv')
+    parent = os.path.dirname(out_path)
+
+    bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25") % 1000
+
+    rez = bm25.transform(topics).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
+    rez.to_csv(os.path.join(parent, f'{name}_ranking.tsv'), sep='\t', index=False)
+
+    metrics = evaluator.calc_aggregate(rez)
+    metrics['name'] = name
+    
+    with open(os.path.join(parent, 'metrics.jsonl'), 'a') as f:
+        f.write(json.dumps(metrics) + '\n')
 
 if __name__ == "__main__":
     Fire(main)
