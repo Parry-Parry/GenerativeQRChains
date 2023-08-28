@@ -24,8 +24,10 @@ def main(lm_name_or_path : str,
          test_set : str,
          out_path : str,
          device_map=None,
-         max_concepts : int = 3,
+         max_concepts : int = 10,
          batch_size : int = 8):
+    
+    sub_cut = [1, 3, 5]
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     flan_kwargs = {}
@@ -55,6 +57,11 @@ def main(lm_name_or_path : str,
     concepts_expand = pipe(queries)
     concepts_expand.to_csv(out_path, sep='\t', index=False)
 
+    for sub in sub_cut:
+        concepts_expand_sub = concepts_expand.groupby('qid').head(sub)
+        concepts_concat = ConceptConcatenation(concepts_expand_sub)
+        concepts_concat.to_csv(out_path.replace('.tsv', f'_sub_{sub}.tsv'), sep='\t', index=False)
+        
     concepts_concat = ConceptConcatenation(concepts_expand)
     concepts_concat.to_csv(out_path.replace('.tsv', '_concat.tsv'), sep='\t', index=False)
 
