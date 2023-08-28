@@ -9,10 +9,10 @@ class Prune(Chain):
 
     def compute_similarity(self, query, tokens):
         query_emb = self.model.encode(query, convert_to_tensor=True)
-        tok_emb = self.model.encode(tokens, convert_to_tensor=True)
+        tok_emb = self.model.encode(tokens.split(' '), convert_to_tensor=True)
         cos_sim = util.cos_sim(query_emb, tok_emb).flatten()
         sorted_idx = cos_sim.argsort(descending=True)
-        return [tokens[i] for i in sorted_idx[:self.max_terms]]
+        return ' '.join([tokens[i] for i in sorted_idx[:self.max_terms]])
 
     def logic(self, inp):
         out = inp.copy()

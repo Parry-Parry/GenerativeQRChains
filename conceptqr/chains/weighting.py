@@ -135,7 +135,8 @@ class FixedWeighting(WeightingModel):
         self.stopwords = pt.autoclass("org.terrier.terms.Stopwords")(None).isStopword
     
     def join_terms(self, query, expansion_terms):
-        terms = [term for term in expansion_terms.split(' ') if not self.stopwords(term) and term not in query.split(' ')]
+        query_terms = query.split(' ')
+        terms = [term for term in expansion_terms.split(' ') if not self.stopwords(term) and term not in query_terms]
         return query + ' ' + ' '.join(f'{term}^{self.beta:.4f}' for term in terms[:self.topk])
     
     def logic(self, inp):
