@@ -12,6 +12,7 @@ import subprocess as sp
 import pandas as pd
 import urllib
 import torch
+import numpy as np
 
 class WeightingModel(Object):
     essential = ['qid', 'query', 'expansion_terms']
@@ -24,7 +25,6 @@ class WeightingModel(Object):
         raise NotImplementedError
     
     def __call__(self, inp):
-        print(inp)
         for col in self.essential:
             assert col in inp.columns, f"WeightingModel requires '{col}' in input"
         out = inp.copy()
@@ -126,5 +126,54 @@ class CWPRF_Weighting(WeightingModel):
     def logic(self, inp):
         out = inp.copy()
         return out.apply(lambda x : self.weight_terms(x['query'], x['expansion_terms']), axis=1)
+
+class FixedWeighting(WeightingModel):
+    def __init__(self, topk : int = 20, beta : float = 0.5):
+        super().__init__()
+        self.topk = topk
+        self.beta = beta
+    
+    def logic(self, inp):
+        out = inp.copy()
+        return out.apply(lambda x : f"{x['query']} {' '.join([f'{term}^{self.beta:.4f}' for term in x['expansion_terms'].split(' ')][:self.topk])}", axis=1)
+
+class TFIDFWeighting(WeightingModel):
+    def __init__(self, index_path : str, stemmer : str = 'PorterStemmer', topk : int = 20):
+        import pyterrier as pt
+        if not pt.started():
+            pt.init()
+        super().__init__()
+        self.index = pt.IndexFactory.of(pt.get_dataset(index_path).get_index('terrier_stemmed'), memory=True)
+        self.lexicon = self.index.getLexicon()
+        self.collection_stats = self.index.getCollectionStatistics()
+        self.num_docs = self.collection_stats.getNumberOfDocuments()
+
+        stem_name = f"org.terrier.terms.{stemmer}" if '.' not in stemmer else stemmer
+        self.stemmer = pt.autoclass(stem_name)().stem
+
+        self.topk = topk
+
+    def tfidf(self, token):
+        term_entry = self.lexicon[self.stemmer(token)]
+        tf = term_entry.getFrequency()
+        df = term_entry.getDocumentFrequency()
+        idf = np.log(self.num_docs / df)
+
+        return tf * idf
+    
+    def logic(self, inp):
+        out = inp.copy()
+
+        out['scores'] = out['expansion_terms'].apply(lambda x : [(term, self.tfidf(term)) for term in x.split(' ')])
+        out['scores'] = out['scores'].apply(lambda x : sorted(x, key=lambda x : x[1], reverse=True))
+        out['scores'] = out['scores'].apply(lambda x : x[:self.topk])
+        out['expansion_terms'] = out['scores'].apply(lambda x : ' '.join([f'{term}^{score:.4f}' for term, score in x]))
+
+        return out.apply(lambda x : f"{x['query']} {x['expansion_terms']}", axis=1)
+
+
+
+    
+
         
         
