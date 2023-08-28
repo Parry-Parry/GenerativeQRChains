@@ -136,7 +136,7 @@ class FixedWeighting(WeightingModel):
     
     def join_terms(self, query, expansion_terms):
         query_terms = query.split(' ')
-        terms = [term for term in expansion_terms.split(' ') if not self.stopwords(term) and term not in query_terms]
+        terms = [term for term in expansion_terms.lower().split(' ') if not self.stopwords(term) and term not in query_terms]
         return query + ' ' + ' '.join(f'{term}^{self.beta:.4f}' for term in terms[:self.topk])
     
     def logic(self, inp):
@@ -163,7 +163,12 @@ class TFIDFWeighting(WeightingModel):
 
     def tfidf(self, token):
         if self.stopwords(token): return 0.
-        term_entry = self.lexicon[self.stemmer(token)]
+        try:
+            term_entry = self.lexicon[self.stemmer(token)]
+        except KeyError:
+            print(f"Token {token} not found in index")
+            return 0.
+
         tf = term_entry.getFrequency()
         df = term_entry.getDocumentFrequency()
         idf = np.log(self.num_docs / df)
@@ -173,10 +178,10 @@ class TFIDFWeighting(WeightingModel):
     def logic(self, inp):
         out = inp.copy()
 
-        out['scores'] = out['expansion_terms'].apply(lambda x : [(term, self.tfidf(term)) for term in x.split(' ')])
+        out['scores'] = out['expansion_terms'].apply(lambda x : [(term, self.tfidf(term)) for term in x.lower().split(' ')])
         out['scores'] = out['scores'].apply(lambda x : sorted(x, key=lambda x : x[1], reverse=True))
         out['scores'] = out['scores'].apply(lambda x : x[:self.topk])
-        out['scores'] = out.apply(lambda x : [(term, score) for term, score in x['scores'] if score > 0. and term not in x['query'].split(' ')], axis=1)
+        out['scores'] = out.apply(lambda x : [(term, score) for term, score in x['scores'] if score > 0. and term.lower() not in x['query'].split(' ')], axis=1)
         out['expansion_terms'] = out['scores'].apply(lambda x : ' '.join([f'{term}^{score:.4f}' for term, score in x]))
 
         return out.apply(lambda x : f"{x['query']} {x['expansion_terms']}", axis=1)
