@@ -74,7 +74,7 @@ def main(intermediate : str,
 
     bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25") % 1000
 
-    rez = bm25.transform(topics).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
+    rez = bm25.transform(new_queries).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
     rez.to_csv(os.path.join(parent, f'{name}_ranking.tsv'), sep='\t', index=False)
 
     metrics = evaluator.calc_aggregate(rez)
