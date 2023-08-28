@@ -28,7 +28,7 @@ def main(
                     for topk in TOPK:
                         args = main_args
                         out_path = os.path.join(out_dir, f'{name}_{beta}_{topk}_{prune_k}_{weight}.tsv')
-                        args += f' --intermediate {file} --beta {beta} --topk {topk} --out_path {out_path}'
+                        args += f' --mode {weight} --intermediate {file} --beta {beta} --topk {topk} --out_path {out_path}'
                         if prune_k > 0: args += f' --prune_k {prune_k}'
                         sp.run(args, shell=True)
     
