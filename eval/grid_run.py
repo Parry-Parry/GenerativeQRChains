@@ -4,10 +4,10 @@ import subprocess as sp
 
 def main(
         script : str,
-        weight_name_or_path : str,
-        lm_name_or_path : str, 
         test_set : str,
         out_dir : str,
+        weight_name_or_path : str = None,
+        lm_name_or_path : str = None, 
         stopwords : str = None,
         batch_size : int = 8):
     
@@ -18,7 +18,9 @@ def main(
     if not os.path.exists(out_dir):
         os.makedirs(out_dir, exist_ok=True)
     
-    main_args = f'python {script} --weight_name_or_path {weight_name_or_path} --lm_name_or_path {lm_name_or_path} --test_set {test_set} --stopwords {stopwords} --batch_size {batch_size}'
+    main_args = f'python {script} --lm_name_or_path {lm_name_or_path} --test_set {test_set} --stopwords {stopwords} --batch_size {batch_size}'
+    if weight_name_or_path is not None:
+        main_args += f' --weight_name_or_path {weight_name_or_path}'
 
     for beta in BETA:
         for topk in TOPK:
