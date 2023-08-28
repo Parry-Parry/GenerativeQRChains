@@ -61,7 +61,7 @@ def main(intermediate : str,
     )
     
     pipe = init_weighting(hparams)
-    topics = pd.read_csv(intermediate, sep='\t', index_col=False, converters={'expansion_terms': ast.literal_eval})
+    topics = pd.read_csv(intermediate, sep='\t', index_col=False)
 
     new_queries = pipe(topics)
     new_queries.to_csv(out_path, sep='\t', index=False)
