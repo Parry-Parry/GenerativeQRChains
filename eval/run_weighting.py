@@ -81,7 +81,7 @@ def main(intermediate : str,
     metrics['name'] = name
     
     with open(os.path.join(parent, 'metrics.jsonl'), 'a') as f:
-        f.write(json.dumps(metrics) + '\n')
+        f.write(str(metrics) + '\n')
 
 if __name__ == "__main__":
     Fire(main)
