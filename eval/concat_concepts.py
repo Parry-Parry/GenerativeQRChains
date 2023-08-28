@@ -46,15 +46,17 @@ def main(lm_name_or_path : str,
 
     ConceptConcatenation = LambdaChain(concatenate_concepts)
 
-    pipe = extract >> qr >> ConceptConcatenation
+    pipe = extract >> qr 
 
     test = pt.get_dataset(test_set)
     topics = test.get_topics()
 
     queries = topics[['qid', 'query']].copy().drop_duplicates()
     concepts_expand = pipe(queries)
-
     concepts_expand.to_csv(out_path, sep='\t', index=False)
+
+    concepts_concat = ConceptConcatenation(concepts_expand)
+    concepts_concat.to_csv(out_path.replace('.tsv', '_concat.tsv'), sep='\t', index=False)
 
 if __name__ == "__main__":
     Fire(main)
