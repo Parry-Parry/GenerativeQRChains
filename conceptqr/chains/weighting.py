@@ -132,10 +132,15 @@ class FixedWeighting(WeightingModel):
         super().__init__()
         self.topk = topk
         self.beta = beta
+        self.stopwords = pt.autoclass("org.terrier.terms.Stopwords")(None).isStopword
+    
+    def join_terms(self, query, expansion_terms):
+        terms = [term for term in expansion_terms.split(' ') if not self.stopwords(term) and term not in query.split(' ')]
+        return query + ' ' + ' '.join(f'{term}^{self.beta:.4f}' for term in terms[:self.topk])
     
     def logic(self, inp):
         out = inp.copy()
-        return out.apply(lambda x : f"{x['query']} {' '.join([f'{term}^{self.beta:.4f}' for term in x['expansion_terms'].split(' ')][:self.topk])}", axis=1)
+        return out.apply(lambda x : self.join_terms(x['query'], x['expansion_terms']), axis=1)
 
 class TFIDFWeighting(WeightingModel):
     def __init__(self, index_path : str, stemmer : str = 'PorterStemmer', topk : int = 20):
@@ -151,9 +156,12 @@ class TFIDFWeighting(WeightingModel):
         stem_name = f"org.terrier.terms.{stemmer}" if '.' not in stemmer else stemmer
         self.stemmer = pt.autoclass(stem_name)().stem
 
+        self.stopwords = pt.autoclass("org.terrier.terms.Stopwords")(None).isStopword
+
         self.topk = topk
 
     def tfidf(self, token):
+        if self.stopwords(token): return 0.
         term_entry = self.lexicon[self.stemmer(token)]
         tf = term_entry.getFrequency()
         df = term_entry.getDocumentFrequency()
@@ -167,6 +175,7 @@ class TFIDFWeighting(WeightingModel):
         out['scores'] = out['expansion_terms'].apply(lambda x : [(term, self.tfidf(term)) for term in x.split(' ')])
         out['scores'] = out['scores'].apply(lambda x : sorted(x, key=lambda x : x[1], reverse=True))
         out['scores'] = out['scores'].apply(lambda x : x[:self.topk])
+        out['scores'] = out.apply(lambda x : [(term, score) for term, score in x['scores'] if score > 0. and term not in x['query'].split(' ')], axis=1)
         out['expansion_terms'] = out['scores'].apply(lambda x : ' '.join([f'{term}^{score:.4f}' for term, score in x]))
 
         return out.apply(lambda x : f"{x['query']} {x['expansion_terms']}", axis=1)
