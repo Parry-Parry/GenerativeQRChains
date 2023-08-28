@@ -11,7 +11,7 @@ def main(
     TOPK = [1, 3, 5, 10]
     PRUNE_K = [0, 10, 15, 20]
 
-    weights = ['fixed', 'tfidf']
+    weights = [ 'tfidf', 'fixed']
     
     if not os.path.exists(out_dir):
         os.makedirs(out_dir, exist_ok=True)
