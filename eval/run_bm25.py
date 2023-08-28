@@ -29,8 +29,6 @@ def main(topic_dir : str, out_dir : str):
 
         rez.to_csv(os.path.join(out_dir, f'{name}_ranking.tsv'), sep='\t', index=False)
 
-        
-
         metrics = evaluator.calc_aggregate(rez)
         metrics['name'] = name
         runs.append(metrics)

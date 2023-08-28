@@ -10,6 +10,15 @@ from conceptqr.models.generation import creative
 
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
+from conceptqr.util import concatenate
+from lightchain import LambdaChain
+
+def concatenate_concepts(inp):
+    # group by qid and concatenate expansion_terms over concept columns
+    inp = inp.groupby(['qid', 'query', 'concept'])['expansion_terms'].agg(list).reset_index()
+    inp = inp.groupby(['qid', 'query'])['expansion_terms'].apply(lambda x: [term for terms in x for term in terms]).reset_index()
+    inp['expansion_terms'] = inp['expansion_terms'].apply(lambda x : ' '.join(concatenate(x)))
+    return inp
 
 def main(lm_name_or_path : str, 
          test_set : str,
@@ -35,7 +44,9 @@ def main(lm_name_or_path : str,
     extract = NeuralExtraction(lm, max_concepts=max_concepts)
     qr = ConceptExpansion(lm, "expansion_terms")
 
-    pipe = extract >> qr
+    ConceptConcatenation = LambdaChain(concatenate_concepts)
+
+    pipe = extract >> qr >> ConceptConcatenation
 
     test = pt.get_dataset(test_set)
     topics = test.get_topics()
