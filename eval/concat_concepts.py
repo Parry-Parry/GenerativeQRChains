@@ -6,7 +6,7 @@ from fire import Fire
 from conceptqr.chains.conceptextraction import NeuralExtraction
 from conceptqr.chains.conceptexpansion import ConceptExpansion
 from conceptqr.models import LM
-from conceptqr.models.generation import creative
+from conceptqr.models.generation import contrastive
 
 from transformers import T5ForConditionalGeneration, T5Tokenizer
 import torch
@@ -40,7 +40,7 @@ def main(lm_name_or_path : str,
         'padding' : 'max_length', 'truncation' : True,
     }
 
-    lm = LM(flan, tokenizer, generation_kwargs=creative, tokenizer_kwargs=tok_kwargs, batch_size=batch_size)
+    lm = LM(flan, tokenizer, generation_kwargs=contrastive, tokenizer_kwargs=tok_kwargs, batch_size=batch_size)
     extract = NeuralExtraction(lm, max_concepts=max_concepts)
     qr = ConceptExpansion(lm, "expansion_terms")
 

@@ -13,7 +13,7 @@ def main(
     
     BETA = [0.25, 0.5, 0.75, 1.0]
     TOPK = [1, 3, 5, 10, 20]
-    MAX_CONCEPTS = [1, 3, 5]
+    MAX_CONCEPTS = [10]
     
     if not os.path.exists(out_dir):
         os.makedirs(out_dir, exist_ok=True)
