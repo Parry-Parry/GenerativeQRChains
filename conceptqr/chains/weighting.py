@@ -136,7 +136,7 @@ class FixedWeighting(WeightingModel):
     
     def join_terms(self, query, expansion_terms):
         query_terms = query.split(' ')
-        terms = [term for term in expansion_terms.lower().split(' ') if not self.stopwords(term) and term not in query_terms]
+        terms = [term for term in expansion_terms.lower().split(' ') if not self.stopwords(term) and term not in query_terms and len(term) > 1]
         return query + ' ' + ' '.join(f'{term}^{self.beta:.4f}' for term in terms[:self.topk])
     
     def logic(self, inp):
@@ -178,7 +178,7 @@ class TFIDFWeighting(WeightingModel):
     def logic(self, inp):
         out = inp.copy()
 
-        out['scores'] = out['expansion_terms'].apply(lambda x : [(term, self.tfidf(term)) for term in x.lower().split(' ')])
+        out['scores'] = out['expansion_terms'].apply(lambda x : [(term, self.tfidf(term)) for term in x.lower().split(' ') if len(term) > 1])
         out['scores'] = out['scores'].apply(lambda x : sorted(x, key=lambda x : x[1], reverse=True))
         out['scores'] = out['scores'].apply(lambda x : x[:self.topk])
         out['scores'] = out.apply(lambda x : [(term, score) for term, score in x['scores'] if score > 0. and term.lower() not in x['query'].split(' ')], axis=1)
