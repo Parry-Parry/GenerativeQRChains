@@ -58,6 +58,7 @@ def main(intermediate : str,
         stopwords = stopwords,
         device = device,
         pruning = prune_k,
+        index_path = 'msmarco_passage'
     )
     
     pipe = init_weighting(hparams)
