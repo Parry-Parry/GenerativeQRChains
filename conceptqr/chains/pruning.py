@@ -8,7 +8,7 @@ class Prune(Chain):
         self.out_attr = out_attr
 
     def compute_similarity(self, query, tokens):
-        tokens = tokens.split(' ')
+        tokens = [t for t in tokens.split(' ') if len(t) > 1]
         query_emb = self.model.encode(query, convert_to_tensor=True)
         tok_emb = self.model.encode(tokens, convert_to_tensor=True)
         cos_sim = util.cos_sim(query_emb, tok_emb).squeeze()
@@ -18,5 +18,5 @@ class Prune(Chain):
 
     def logic(self, inp):
         out = inp.copy()
-        out[self.out_attr] = out.apply(lambda x : self.compute_similarity(x['query'], x['expansion_terms']), axis=1)
+        out[self.out_attr] = out.apply(lambda x : self.compute_similarity(x['query'], x[self.out_attr]), axis=1)
         return out
