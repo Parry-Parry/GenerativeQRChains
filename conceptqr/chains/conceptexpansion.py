@@ -14,5 +14,5 @@ class ConceptExpansion(Chain):
         out = inp.copy()
         prompt_args = inp[self.essential].to_dict(orient='records')
         prompts = self.prompt(prompt_args)
-        out[self.out_attr] = [*map(lambda x : clean(x).split(' '), self.model(prompts))]
+        out[self.out_attr] = [*map(lambda x : clean(x).lower().split(' '), self.model(prompts))]
         return out
