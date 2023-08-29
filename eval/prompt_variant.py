@@ -19,6 +19,7 @@ import torch
 DATASET = 'irds:msmarco-passage/trec-dl-2019/judged'
 LM_NAME_OR_PATH = 'google/flan-t5-xl'    
 CONCEPTS = [1, 3, 5]
+TOPK = [5, 10, 15]
 
 PROMPTS = [
     "Query: {query} \n\n Extract list of main concepts from the query:",
@@ -52,17 +53,17 @@ def main(out_file : str):
     lm = LM(flan, tokenizer, generation_kwargs=creative, tokenizer_kwargs=tok_kwargs, batch_size=32)
     extract = NeuralExtraction(lm, max_concepts=1)
     qr = ConceptExpansion(lm, "expansion_terms")
-    weighting = FixedWeighting(10, 0.5)
+
     ConceptConcatenation = LambdaChain(concatenate_concepts)
 
-    downstream = qr >> ConceptConcatenation >> weighting
+    downstream = qr >> ConceptConcatenation 
 
     ### INIT DATA ###
 
     dataset = pt.get_dataset(DATASET)
     topics = dataset.get_topics()
     qrels = dataset.get_qrels().rename(columns={'qid' : 'query_id', 'docno' : 'doc_id', 'label' : 'relevance'})
-    evaluator = ir_measures.evaluator([nDCG@10, R(rel=2)@100, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
+    evaluator = ir_measures.evaluator([nDCG@10, R(rel=2)@100, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR, AP(rel=2)], qrels)
 
     bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25") % 1000
 
@@ -72,22 +73,36 @@ def main(out_file : str):
 
     ### RUN PIPE ###
 
-    for c in CONCEPTS:
-        for i, prompt in enumerate(PROMPTS):
-            extract.prompt = Prompt.from_string(prompt)
-            extract.max_concepts = c
-            pipe = extract >> downstream
-            concepts_expand = pipe(queries)
-            ranking = bm25.transform(concepts_expand).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
-            metrics = evaluator.calc_aggregate(ranking)
+    for k in TOPK:
+        for c in CONCEPTS:
+            for i, prompt in enumerate(PROMPTS):
+                weighting = FixedWeighting(k, 0.5)
+                extract.prompt = Prompt.from_string(prompt)
+                extract.max_concepts = c
+                pipe = extract >> downstream >> weighting
+                concepts_expand = pipe(queries)
+                ranking = bm25.transform(concepts_expand).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
+                metrics = evaluator.calc_aggregate(ranking)
 
-            metrics = {str(k) : v for k, v in metrics.items()}
+                metrics = {str(k) : v for k, v in metrics.items()}
 
-            metrics['num_concepts'] = c
-            metrics['prompt_variant'] = i
-            metrics['prompt_text'] = prompt
+                metrics['topk'] = k
+                metrics['num_concepts'] = c
+                metrics['prompt_variant'] = i
+                metrics['prompt_text'] = prompt
 
-            ALL_RES.append(metrics)
+                ALL_RES.append(metrics)
+    
+    baseline = bm25.transform(topics).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
+    metrics = evaluator.calc_aggregate(baseline)
+
+    metrics = {str(k) : v for k, v in metrics.items()}
+    metrics['topk'] = 0
+    metrics['num_concepts'] = 0
+    metrics['prompt_variant'] = 100
+    metrics['prompt_text'] = 'baseline'
+
+    ALL_RES.append(metrics)
 
     ALL_RES = pd.DataFrame.from_records(ALL_RES)
     ALL_RES.to_csv(out_file, sep='\t', index=False)
