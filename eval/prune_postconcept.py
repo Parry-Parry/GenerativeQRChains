@@ -19,7 +19,7 @@ import torch
 
 DATASET = 'irds:msmarco-passage/trec-dl-2019/judged'
 INDEX_DATASET = 'msmarco_passage'
-LM_NAME_OR_PATH = 'google/flan-t5-xl'    
+LM_NAME_OR_PATH = 'google/flan-t5-xxl'    
 CONCEPTS = [1, 3, 5, 10, 20]
 TOPK = [5, 10, 15]
 
@@ -35,20 +35,19 @@ def sample_terms(x, k):
     x['expansion_terms'] = x['expansion_terms'].apply(lambda x : ' '.join(random.sample(x.split(' '), k)) if len(x.split(' ')) > k else x)
     return x
 
-def main(out_file : str):
+def main(out_file : str, batch_size : int = 16):
     ### INIT PIPE ###
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    flan_kwargs = {}
+    flan_kwargs = {'device_map' : 'auto'}
     flan = T5ForConditionalGeneration.from_pretrained(LM_NAME_OR_PATH, **flan_kwargs)
-    flan = flan.to(device)
     tokenizer = T5Tokenizer.from_pretrained(LM_NAME_OR_PATH)
 
     tok_kwargs = {
         'padding' : 'max_length', 'truncation' : True,
     }
 
-    lm = LM(flan, tokenizer, generation_kwargs=creative, tokenizer_kwargs=tok_kwargs, batch_size=32)
+    lm = LM(flan, tokenizer, generation_kwargs=creative, tokenizer_kwargs=tok_kwargs, batch_size=batch_size)
     extract = NeuralExtraction(lm, max_concepts=1)
     qr = ConceptExpansion(lm, "expansion_terms")
 
