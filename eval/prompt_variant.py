@@ -61,7 +61,7 @@ def main(out_file : str):
 
     dataset = pt.get_dataset(DATASET)
     topics = dataset.get_topics()
-    qrels = dataset.get_qrels().rename(colums={'qid' : 'query_id', 'docno' : 'doc_id', 'label' : 'relevance'})
+    qrels = dataset.get_qrels().rename(columns={'qid' : 'query_id', 'docno' : 'doc_id', 'label' : 'relevance'})
     evaluator = ir_measures.evaluator([nDCG@10, R(rel=2)@100, R(rel=2)@1000, P(rel=2)@10, P(rel=2)@100, RR], qrels)
 
     bm25 = pt.BatchRetrieve.from_dataset("msmarco_passage", "terrier_stemmed", wmodel="BM25") % 1000
