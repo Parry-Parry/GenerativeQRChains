@@ -56,7 +56,7 @@ class IDFPrune(Chain):
     def get_topk(self, tokens):
         scored = [(token, self.idf(token)) for token in tokens.split(' ') if len(token) > 1]
         scored = sorted(scored, key=lambda x : x[1], reverse=True)
-        return ' '.join(scored[:self.topk])
+        return ' '.join([x[0] for x in scored[:self.topk]])
 
     def logic(self, inp):
         out = inp.copy()
