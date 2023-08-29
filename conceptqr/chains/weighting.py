@@ -144,6 +144,8 @@ class FixedWeighting(WeightingModel):
         return out.apply(lambda x : self.join_terms(x['query'], x['expansion_terms']), axis=1)
 
 class TFIDFWeighting(WeightingModel):
+    # Uses probabilistic smoothed idf
+    b = 0.5
     def __init__(self, index_path : str, stemmer : str = 'PorterStemmer', topk : int = 20):
         import pyterrier as pt
         if not pt.started():
@@ -171,7 +173,7 @@ class TFIDFWeighting(WeightingModel):
 
         tf = term_entry.getFrequency()
         df = term_entry.getDocumentFrequency()
-        idf = np.log(self.num_docs / df)
+        idf = np.log((self.num_docs-df+self.b) / (df+self.b))
 
         return tf * idf
     

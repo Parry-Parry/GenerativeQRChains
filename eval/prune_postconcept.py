@@ -6,6 +6,7 @@ from fire import Fire
 from lightchain import LambdaChain, Prompt
 from conceptqr.chains.conceptextraction import NeuralExtraction
 from conceptqr.chains.weighting import FixedWeighting
+from conceptqr.chains.pruning import IDFPrune
 from conceptqr.chains.conceptexpansion import ConceptExpansion
 from conceptqr.models import LM
 from conceptqr.models.generation import creative
@@ -17,18 +18,10 @@ from ir_measures import *
 import torch
 
 DATASET = 'irds:msmarco-passage/trec-dl-2019/judged'
+INDEX_DATASET = 'msmarco_passage'
 LM_NAME_OR_PATH = 'google/flan-t5-xl'    
-CONCEPTS = [1, 3, 5]
+CONCEPTS = [1, 3, 5, 10, 20]
 TOPK = [5, 10, 15]
-
-PROMPTS = [
-    "Query: {query} \n\n Extract list of main concepts from the query:",
-    "Query: {query} \n\n Extract list of main topics from the query:",
-    "Query: {query} \n\n What topics relate to this query:",
-    "Query: {query} \n\n What concepts relate to this query:",
-    "Query: {query} \n\n What topics are related to this query:",
-    "Query: {query} \n\n What concepts are related to this query:",
-]
 
 def concatenate_concepts(inp):
     # group by qid and concatenate expansion_terms over concept columns
@@ -38,7 +31,8 @@ def concatenate_concepts(inp):
     return inp
 
 def sample_terms(x, k):
-    x['expansion_terms'] = x['expansion_terms'].apply(lambda x : x[:k]) 
+    import random
+    x['expansion_terms'] = x['expansion_terms'].apply(lambda x : ' '.join(random.sample(x.split(' '), k)) if len(x.split(' ')) > k else x)
 
 def main(out_file : str):
     ### INIT PIPE ###
@@ -78,30 +72,29 @@ def main(out_file : str):
 
     for k in TOPK:
         for c in CONCEPTS:
-            for i, prompt in enumerate(PROMPTS):
-                weighting = FixedWeighting(100, 0.5)
-                sampler = LambdaChain(lambda x : x.apply(lambda x : ))
-                extract.prompt = Prompt.from_string(prompt)
-                extract.max_concepts = c
-                pipe = extract >> downstream >> weighting
-                concepts_expand = pipe(queries)
-                ranking = bm25.transform(concepts_expand).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
-                metrics = evaluator.calc_aggregate(ranking)
+            weighting = FixedWeighting(100, 0.5)
+            sampler = LambdaChain(lambda x : sample_terms(x, 20))
+            pruner = IDFPrune(INDEX_DATASET, topk=k)
+            extract.max_concepts = c
+            pipe = extract >> downstream >> pruner >> sampler >> weighting
+            concepts_expand = pipe(queries)
+            ranking = bm25.transform(concepts_expand).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
+            metrics = evaluator.calc_aggregate(ranking)
 
-                metrics = {str(k) : v for k, v in metrics.items()}
+            metrics = {str(k) : v for k, v in metrics.items()}
 
-                metrics['topk'] = k
-                metrics['num_concepts'] = c
-                metrics['prompt_variant'] = i
-                metrics['prompt_text'] = prompt
+            metrics['topk'] = k
+            metrics['sample_topk'] = 20
+            metrics['num_concepts'] = c
 
-                ALL_RES.append(metrics)
+            ALL_RES.append(metrics)
     
     baseline = bm25.transform(topics).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
     metrics = evaluator.calc_aggregate(baseline)
 
     metrics = {str(k) : v for k, v in metrics.items()}
     metrics['topk'] = 0
+    metrics['sample_topk'] = 0
     metrics['num_concepts'] = 0
     metrics['prompt_variant'] = 100
     metrics['prompt_text'] = 'baseline'
