@@ -33,6 +33,7 @@ def concatenate_concepts(inp):
 def sample_terms(x, k):
     import random
     x['expansion_terms'] = x['expansion_terms'].apply(lambda x : ' '.join(random.sample(x.split(' '), k)) if len(x.split(' ')) > k else x)
+    return x
 
 def main(out_file : str):
     ### INIT PIPE ###
