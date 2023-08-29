@@ -74,10 +74,10 @@ def main(out_file : str):
     for k in TOPK:
         for c in CONCEPTS:
             weighting = FixedWeighting(100, 0.5)
-            sampler = LambdaChain(lambda x : sample_terms(x, 20))
+            #sampler = LambdaChain(lambda x : sample_terms(x, 20))
             pruner = IDFPrune(INDEX_DATASET, topk=k)
             extract.max_concepts = c
-            pipe = extract >> downstream >> pruner >> sampler >> weighting
+            pipe = extract >> downstream >> pruner >> weighting
             concepts_expand = pipe(queries)
             ranking = bm25.transform(concepts_expand).rename(columns={'qid' : 'query_id', 'docno' : 'doc_id'})
             metrics = evaluator.calc_aggregate(ranking)
@@ -97,8 +97,6 @@ def main(out_file : str):
     metrics['topk'] = 0
     metrics['sample_topk'] = 0
     metrics['num_concepts'] = 0
-    metrics['prompt_variant'] = 100
-    metrics['prompt_text'] = 'baseline'
 
     ALL_RES.append(metrics)
 
