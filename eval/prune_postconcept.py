@@ -39,7 +39,7 @@ def main(out_file : str, batch_size : int = 16):
     ### INIT PIPE ###
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    flan_kwargs = {'device_map' : 'auto'}
+    flan_kwargs = {'device_map' : 'auto', 'dtype' : torch.float16}
     flan = T5ForConditionalGeneration.from_pretrained(LM_NAME_OR_PATH, **flan_kwargs)
     tokenizer = T5Tokenizer.from_pretrained(LM_NAME_OR_PATH)
 
