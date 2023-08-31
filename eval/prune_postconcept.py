@@ -20,7 +20,7 @@ import torch
 DATASET = 'irds:msmarco-passage/trec-dl-2019/judged'
 INDEX_DATASET = 'msmarco_passage'
 LM_NAME_OR_PATH = 'google/flan-t5-xxl'    
-CONCEPTS = [1, 3, 5, 10, 20]
+CONCEPTS = [1, 3, 5]
 TOPK = [5, 10, 15]
 
 def concatenate_concepts(inp):
